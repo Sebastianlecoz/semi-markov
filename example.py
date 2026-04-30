@@ -105,34 +105,34 @@ print(f"  Train: {len(train_seqs)} sequences  |  Test: {len(test_seqs)} sequence
 print("----------------------------------------------------")
 all_results = []
 
-DELTA_TS = [0.1, 0.5, 1.0]
-HORIZONS  = [10, 20, 30, 60, 120, 300]
+DELTA_TS = [0.1,0.5,1]
+HORIZONS  = [10, 20, 30, 60,12,300]
 
 for d_t in DELTA_TS:
 
     # ── Build once at H=300 ──────────────────────────────────────────────────
-    t0 = time.time()
-    model.train_XT_baseline(
-        train_sequences = train_seqs,
-        test_sequences  = test_seqs,
-        delta_t = d_t,
-        horizon = 300.0,
-    )
-    print(f"Train baseline  delta_t={d_t}  H=300  →  {time.time()-t0:.1f}s")
 
-    t0 = time.time()
-    model.train_XT_semi(
-        train_sequences = train_seqs,
-        test_sequences  = test_seqs,
-        delta_t = d_t,
-        horizon = 300.0,
-    )
-    print(f"Train semi      delta_t={d_t}  H=300  →  {time.time()-t0:.1f}s")
 
     # ── Evaluate at each horizon — just override the stored horizon value ─────
     for H in HORIZONS:
-        if d_t == 0.1 and H in [10, 20, 30, 60]:
-            continue
+        t0 = time.time()
+        model.train_XT_baseline(
+            train_sequences=train_seqs,
+            test_sequences=test_seqs,
+            delta_t=d_t,
+            horizon=H,
+        )
+        print(f"Train baseline  delta_t={d_t}  H=300  →  {time.time() - t0:.1f}s")
+
+        t0 = time.time()
+        model.train_XT_semi(
+            train_sequences=train_seqs,
+            test_sequences=test_seqs,
+            delta_t=d_t,
+            horizon=H,
+        )
+        print(f"Train semi      delta_t={d_t}  H=300  →  {time.time() - t0:.1f}s")
+
 
         # Tell the model which horizon to use for ground-truth labelling
         # and for surface slicing in predict(). Surface itself is unchanged.
@@ -158,9 +158,9 @@ for d_t in DELTA_TS:
         print(f"Saved → {fname}  ({time.time()-t0:.1f}s)")
 
     # Restore to 300 before next delta_t
-    model._horizon                     = 300.0
-    model._baseline_model._horizon     = 300.0
-    model._semi_model._surface_horizon = 300.0
+    model._horizon                     = H
+    model._baseline_model._horizon     = H
+    model._semi_model._surface_horizon = H
 
 # ── Save full results table ──────────────────────────────────────────────────
 results_df = pd.concat(all_results, ignore_index=True)
