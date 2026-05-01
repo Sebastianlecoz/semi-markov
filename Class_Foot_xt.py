@@ -1512,7 +1512,7 @@ class Foot_semi_xt:
         surv_emp = 1 - res.cumcount / res.cumcount[-1]
 
         x       = np.linspace(max(0, data.min()), data.max(), 300)
-        palette = sns.color_palette("tab10", len(top_models))
+        palette = ["#E63946", "#2196F3", "#FF9800", "#00BFA5", "#AB47BC", "#76FF03"][:len(top_models)]
 
         plt.figure(figsize=(10, 6))
         plt.step(x_vals, surv_emp, where="mid",
@@ -1522,7 +1522,7 @@ class Foot_semi_xt:
             cdf        = get_cdf_function(model_name, params)
             surv_model = 1 - cdf(x)
             score      = all_models_details[model_name].get("qq_score", np.inf)
-            plt.plot(x, surv_model, linestyle="--", linewidth=2,
+            plt.plot(x, surv_model, linestyle=(0, (5, 2)), linewidth=2,
                      label=f"{model_name} (QQ={score:.4f})",
                      alpha=0.85, color=color)
 
